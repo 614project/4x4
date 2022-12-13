@@ -54,7 +54,8 @@ namespace Jyunrcaea
             Display.AddScene(overScene = new GameOver.OverScene());
             Framework.function = new FrameworkOption();
             Framework.BackgroundColor = new(50, 50, 50,255);
-            //Display.FrameLateLimit = 60;
+            Display.FrameLateLimit = 0; //모니터 주사율
+            Display.FrameLateLimit = Display.FrameLateLimit * 2; //그에 2배
             Framework.Run();
         }
     }
