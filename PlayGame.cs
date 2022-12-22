@@ -29,6 +29,7 @@ namespace GameScene
      //           new TestCircle(),
                 healthText=  new HealthText(),
                 ScoreTime = new ScoreTime(),
+                new FPS(),
                 StartText = new()
             );
         }
@@ -65,6 +66,46 @@ namespace GameScene
                 n+=1.0f;
             }
             base.Resize();
+        }
+    }
+
+    class FPS : TextBox, UpdateEventInterface
+    {
+        public FPS() : base(Program.fontdir, 0)
+        {
+            this.DrawX = HorizontalPositionType.Right;
+            this.DrawY = VerticalPositionType.Bottom;
+            this.OriginX = HorizontalPositionType.Left;
+            this.OriginY = VerticalPositionType.Top;
+        }
+
+        public override void Start()
+        {
+            base.Start();
+            Resize();
+            endtime = Framework.RunningTime + 1000f;
+        }
+
+        public override void Resize()
+        {
+            this.Size = (int)(Window.UHeight * 0.03f);
+            this.Y = this.Size;
+            base.Resize();
+        }
+
+        int fps = 0;
+
+        float endtime = 0;
+
+        public void Update(float ms)
+        {
+            if (Framework.RunningTime > endtime)
+            {
+                this.Text = $"FPS: {fps}/{Display.MonitorRefreshRate}";
+                fps = 0;
+                endtime += 1000f;
+            }
+            fps++;
         }
     }
 
@@ -226,7 +267,7 @@ namespace GameScene
                 this.Move((int)(Window.UWidth * (tr ? 0.6f : -0.6f)), this.Y, 2000, 100);
             } else
             {
-                this.Move(GameScene.lengthlist[random.Next(4)],(int)(Window.UHeight * ((tr = random.Next(2) == 0) ? -0.6f : 0.6f)),  0);
+                this.Move(GameScene.lengthlist[ random.Next(4)],(int)(Window.UHeight * ((tr = random.Next(2) == 0) ? -0.6f : 0.6f)),  0);
                 this.Move(this.X,(int)(Window.UHeight * (tr ? 0.6f : -0.6f)),  2000, 100);
             }
         }
@@ -237,6 +278,7 @@ namespace GameScene
         {
             base.Start();
             Resize();
+
             //if (tr)
             //{
             //    this.Move()
