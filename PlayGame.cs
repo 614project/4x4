@@ -50,7 +50,6 @@ namespace GameScene
             {
                 this.AddSprite(new EnemyCircle());
                 this.AddSprite(new EnemyCircle());
-                //this.AddSprite(new EnemyCircle());
                 showtime += 800f;
             }
         }
@@ -109,7 +108,7 @@ namespace GameScene
         }
     }
 
-    class TestCircle : Sprite , MouseMoveInterface
+    class TestCircle : Sprite , MouseMoveEventInterface
     {
         //public TestCircle() : base("resource/circle.png") {
         public TestCircle() : base(new TextureFromFile("resource/circle.png")) { 
@@ -137,15 +136,24 @@ namespace GameScene
         }
     }
 
-    class StartText : TextBox
+    class StartText : TextboxForAnimation
     {
-        public StartText() : base("resource/font.ttf", 0,"시작할려면 스페이스 바를 눌러주세요!") {
+        public StartText() : base("resource/font.ttf", 0, "시작할려면 스페이스 바를 눌러주세요!")
+        {
+            this.Opacity(0);
+            this.OpacityAnimationState.CompleteFunction = () => {
+                this.OpacityAnimationState.CompleteFunction = () =>
+                {
+                    ((GameScene)this.InheritedObject).RemoveSprite(this);
+                };
+            };
         }
 
         public override void Start()
         {
             base.Start();
             Resize();
+            this.Opacity(255, 300f, 300f);
         }
 
         public override void Resize()
@@ -160,7 +168,7 @@ namespace GameScene
 
         public Grid() : base(new TextureFromFile("resource/grid.png"))
         {
-            this.CompleteFunction = cpt;
+            this.MoveAnimationState.CompleteFunction = cpt;
         }
 
         public override void Resize()
@@ -253,21 +261,23 @@ namespace GameScene
 
     class EnemyCircle : SpriteForAnimation
     {
+        bool hor;
         bool tr;
+        int line;
 
         public EnemyCircle()
-            //: base(new TextureFromFile("resource/circle.png"))
-            : base(GameScene.enemytexture)
+            : base(new TextureFromFile("resource/circle.png"))
+            //: base(GameScene.enemytexture)
         {
-            this.CompleteFunction = End;
+            this.MoveAnimationState.CompleteFunction = End;
             Random random = new Random();
-            if(random.Next(2) == 0 )
+            if(hor = (random.Next(2) == 0))
             {
-                this.Move((int)(Window.UWidth * ((tr = random.Next(2) == 0)? -0.6f : 0.6f)), GameScene.lengthlist[random.Next(4)],0);
+                this.Move((int)(Window.UWidth * ((tr = random.Next(2) == 0)? -0.6f : 0.6f)), GameScene.lengthlist[line = random.Next(4)],0);
                 this.Move((int)(Window.UWidth * (tr ? 0.6f : -0.6f)), this.Y, 2000, 100);
             } else
             {
-                this.Move(GameScene.lengthlist[ random.Next(4)],(int)(Window.UHeight * ((tr = random.Next(2) == 0) ? -0.6f : 0.6f)),  0);
+                this.Move(GameScene.lengthlist[line= random.Next(4)],(int)(Window.UHeight * ((tr = random.Next(2) == 0) ? -0.6f : 0.6f)),  0);
                 this.Move(this.X,(int)(Window.UHeight * (tr ? 0.6f : -0.6f)),  2000, 100);
             }
         }
@@ -288,12 +298,16 @@ namespace GameScene
 
         void End()
         {
-            Program.mainScene.RemoveSprite(this);
+            if (Program.mainScene.RemoveSprite(this) == false) throw new Exception("암튼오류");
         }
 
         public override void Resize()
         {
             this.Size = Window.UHeight * 0.0005f;
+            if (hor)
+                this.MoveAnimationState.ModifyArrivalPoint((int)(Window.UWidth * (tr ? 0.6f : -0.6f)), GameScene.lengthlist[line]);
+            else
+                this.MoveAnimationState.ModifyArrivalPoint(GameScene.lengthlist[line],(int)(Window.UWidth * (tr ? 0.6f : -0.6f)));
             base.Resize();
         }
 
@@ -306,22 +320,29 @@ namespace GameScene
             {
                 GameScene.healthText.HP--;
                 this.success_attack = true;
+                Opacity(0, 200f);
             }
         }
     }
 
-    class Circle : SpriteForAnimation, KeyDownInterface
+    class Circle : SpriteForAnimation, KeyDownEventInterface
     {
         int x =0, y = 0;
 
-        public Circle() : base(new TextureFromFile("resource/maincircle.png")) { 
-            
+        public Circle() : base(new TextureFromFile("resource/maincircle.png")) {
+            this.MoveAnimationState.CalculationFunction = Animation.GetAnimation(AnimationType.Ease_Out);
+            this.Opacity(0);
+        }
+
+        public override void Start()
+        {
+            base.Start();
         }
 
         public override void Resize()
         {
             this.Size = Window.UHeight * 0.0005f;
-            Moving();
+            this.Move(GameScene.lengthlist[x], GameScene.lengthlist[y], 0);
             base.Resize();
         }
 
@@ -353,7 +374,8 @@ namespace GameScene
                         return;
                     }
                     if (Program.mainScene.showtime != 0) return;
-                    Program.mainScene.RemoveSprite(GameScene.StartText);
+                    //Program.mainScene.RemoveSprite(GameScene.StartText);
+                    GameScene.StartText.Opacity(0, 300f);
                     Program.mainScene.showtime = Framework.RunningTime;
                     GameScene.ScoreTime.Hide = false;
                     break;
