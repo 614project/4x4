@@ -46,13 +46,13 @@ namespace Jyunrcaea
                 SaveFile(path + "maincircle.png", _4x4.Properties.Resources.maincircle);
             }
             LoadSource("resource");
-            Framework.Init("4x4", 1200, 720, null, null, new(true,false,false,false,true));
+            Framework.Init("4x4", 1200, 720);
             Window.Icon("resource/maincircle.png");
             Display.AddScene(mainScene = new GameScene.GameScene());
             //Display.AddScene(menuScene = new MainMenu.MainScene());
             Display.AddScene(overScene = new GameOver.OverScene());
             Framework.Function = new FrameworkOption();
-            Framework.BackgroundColor = new(50, 50, 50,255);
+            Window.BackgroundColor = new(50, 50, 50,255);
             Display.FrameLateLimit = 0; //모니터 주사율
             Display.FrameLateLimit *= 2 ; //그에 2배
             Framework.Run();

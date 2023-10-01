@@ -1,5 +1,6 @@
 ﻿using Jyunrcaea;
 using JyunrcaeaFramework;
+using static JyunrcaeaFramework.Input;
 
 namespace GameScene
 {
@@ -40,7 +41,7 @@ namespace GameScene
             Resize();
         }
 
-        public float showtime = 0;
+        public double showtime = 0;
 
         public override void Update(float ms)
         {
@@ -68,7 +69,7 @@ namespace GameScene
         }
     }
 
-    class FPS : TextBox, UpdateEventInterface
+    class FPS : TextBox, Events.Update
     {
         public FPS() : base(Program.fontdir, 0)
         {
@@ -82,7 +83,7 @@ namespace GameScene
         {
             base.Start();
             Resize();
-            endtime = Framework.RunningTime + 1000f;
+            endtime = Framework.RunningTime + 1000d;
         }
 
         public override void Resize()
@@ -94,7 +95,7 @@ namespace GameScene
 
         int fps = 0;
 
-        float endtime = 0;
+        double endtime = 0;
 
         public void Update(float ms)
         {
@@ -108,7 +109,7 @@ namespace GameScene
         }
     }
 
-    class TestCircle : Sprite , MouseMoveEventInterface
+    class TestCircle : Sprite, Events.MouseMove
     {
         //public TestCircle() : base("resource/circle.png") {
         public TestCircle() : base(new TextureFromFile("resource/circle.png")) { 
@@ -130,8 +131,8 @@ namespace GameScene
 
         public void MouseMove()
         {
-            this.X = Mouse.X;
-            this.Y = Mouse.Y;
+            this.X = Input.Mouse.X;
+            this.Y = Input.Mouse.Y;
             if (Convenience.Distance(this, GameScene.circle) <= this.Width) Console.WriteLine("Over");
         }
     }
@@ -186,7 +187,7 @@ namespace GameScene
         }
     }
 
-    class ScoreTime : TextBox, UpdateEventInterface
+    class ScoreTime : TextBox, Events.Update
     {
         public ScoreTime() : base("resource/font.ttf", 0, "점수: 0")
         {
@@ -325,12 +326,12 @@ namespace GameScene
         }
     }
 
-    class Circle : SpriteForAnimation, KeyDownEventInterface
+    class Circle : SpriteForAnimation, Events.Update
     {
         int x =0, y = 0;
 
         public Circle() : base(new TextureFromFile("resource/maincircle.png")) {
-            this.MoveAnimationState.CalculationFunction = Animation.GetAnimation(AnimationType.Ease_Out);
+            this.MoveAnimationState.CalculationFunction = Animation.Type.EaseOutQuad;
             this.Opacity(0);
         }
 
@@ -358,11 +359,11 @@ namespace GameScene
                 case Keycode.ESCAPE:
                     Framework.Stop();
                     break;
-#if DEBUG
-                case Keycode.F1:
-                    Framework.ObjectDrawDebuging = !Framework.ObjectDrawDebuging;
-                    break;
-#endif
+//#if DEBUG
+//                //case Keycode.F1:
+//                //     = !Framework.ObjectDrawDebuging;
+//                //    break;
+//#endif
                 case Keycode.SPACE:
                     if (GameScene.healthText.HP == 0)
                     {
